@@ -15,7 +15,7 @@ cargo build --release
 
 Input is treatment (`-t`) and control (`-c`) pileups. Lengths (`-l`) and window (`-w`) determine output intervals. Mode (`-m`) is ratio (`t / c`) or diff (`t - c`); infinite values in `-m ratio` are skipped.
 ```bash
-pwc \
+/target/release/pwc \
 -t /project/logsdon_shared/projects/PrimateT2T/CenPlot/data/methylbed/mPanPan1_CENP-A_dimelo2matpat_v1.0.8.bed.gz \
 -c /project/logsdon_shared/projects/PrimateT2T/CenPlot/data/methylbed/mPanPan1_noAb_dimelo2matpat_v1.0.8.bed.gz \
 -l /project/logsdon_shared/data/PrimateT2T/assemblies/mPanPan1.matpat.v1.fa.fai \
@@ -23,7 +23,7 @@ pwc \
 -m ratio
 ```
 
-Output is BED4 file.
+Output is an unsorted BED4 file.
 ```
 chr1_mat_hsa1   3615000 3620000 1.4033998
 ```

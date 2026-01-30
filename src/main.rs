@@ -6,6 +6,7 @@ use noodles_csi::{
     io::IndexedReader,
 };
 use noodles_tabix as tabix;
+use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use std::{
     error::Error, fs::File, io::{BufRead, BufReader}
 };
@@ -66,15 +67,15 @@ fn main() -> Result<(), Box<dyn Error>> {
         })
         .collect();
 
-    let mut control_reader =
-        tabix::io::indexed_reader::Builder::default().build_from_path(args.control)?;
-    let mut treatment_reader =
-        tabix::io::indexed_reader::Builder::default().build_from_path(args.treatment)?;
+    chrom_windows.into_par_iter().for_each(|region| {
+        let mut control_reader =
+            tabix::io::indexed_reader::Builder::default().build_from_path(&args.control).unwrap();
+        let mut treatment_reader =
+            tabix::io::indexed_reader::Builder::default().build_from_path(&args.treatment).unwrap();
 
-    for region in chrom_windows {
-        let treatment_avg = get_average_in_window(&mut control_reader, &region)?;
-        let control_avg = get_average_in_window(&mut treatment_reader, &region)?;
-
+        let treatment_avg = get_average_in_window(&mut control_reader, &region).unwrap();
+        let control_avg = get_average_in_window(&mut treatment_reader, &region).unwrap();
+        
         let chrom = region.name();
         let st = match region.start() {
             std::ops::Bound::Included(v) | std::ops::Bound::Excluded(v) => v.get(),
@@ -88,14 +89,14 @@ fn main() -> Result<(), Box<dyn Error>> {
             Mode::Diff => treatment_avg - control_avg,
             Mode::Ratio => {
                 let value = treatment_avg / control_avg;
-                if value.is_infinite() {
-                    continue;
+                if value.is_nan() {
+                    0.0
+                } else {
+                    value
                 }
-                value
             },
         };
         println!("{chrom}\t{st}\t{end}\t{value}")
-    }
-
+    });
     Ok(())
 }

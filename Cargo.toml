@@ -10,3 +10,4 @@ noodles = { version = "0.104.0", features = ["core"] }
 noodles-bgzf = "0.45.0"
 noodles-csi = "0.53.0"
 noodles-tabix = "0.59.0"
+rayon = "1.11.0"
